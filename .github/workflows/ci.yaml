@@ -5,6 +5,9 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
@@ -39,7 +42,7 @@ jobs:
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
-          version: v2.12   
+          version: v2.12
 
   docker:
     needs:
@@ -67,4 +70,16 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64
-          tags: bryanobabori/go-web-app:${{ github.run_id }}           
+          tags: bryanobabori/go-web-app:${{ github.run_id }}
+
+      - name: Update Helm image tag
+        run: |
+          sed -i "s/tag: .*/tag: ${{ github.run_id }}/" helm/go-web-app-chart/values.yaml
+
+      - name: Commit updated Helm values
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add helm/go-web-app-chart/values.yaml
+          git commit -m "Update image tag to ${{ github.run_id }}"
+          git push
