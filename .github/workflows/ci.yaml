@@ -70,11 +70,11 @@ jobs:
           context: .
           push: true
           platforms: linux/amd64
-          tags: bryanobabori/go-web-app:${{ github.run_id }}
+          tags: bryanobabori/go-web-app:run-${{ github.run_id }}
 
       - name: Update Helm image tag
         run: |
-          sed -i "s/tag: .*/tag: ${{ github.run_id }}/" helm/go-web-app-chart/values.yaml
+          sed -i 's/tag: .*/tag: "run-${{ github.run_id }}"/' helm/go-web-app-chart/values.yaml
 
       - name: Commit updated Helm values
         run: |
